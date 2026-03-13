@@ -3,73 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메모장</title>
+    <title>메모</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 0 20px;
-            background: #f5f5f5;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        h1 { color: #333; }
+
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            background: #fffdf7;
+            color: #2a2a2a;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 48px 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #bbb;
+            margin-bottom: 36px;
+        }
+
+        .input-area {
+            margin-bottom: 40px;
+        }
+
         textarea {
             width: 100%;
-            height: 100px;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
+            height: 130px;
+            padding: 16px;
+            font-size: 16px;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            background: #fff;
+            border: 2px dashed #d4c9b0;
+            border-radius: 12px;
+            resize: none;
+            outline: none;
+            color: #2a2a2a;
+            transition: border-color 0.2s;
+            line-height: 1.6;
+            -webkit-appearance: none;
         }
-        button {
+
+        textarea:focus {
+            border-color: #a08c6e;
+        }
+
+        textarea::placeholder {
+            color: #ccc;
+        }
+
+        button.save {
             margin-top: 10px;
-            padding: 8px 20px;
-            background: #4CAF50;
-            color: white;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            background: #888;
+            color: #fffdf7;
             border: none;
-            border-radius: 4px;
+            border-radius: 12px;
             cursor: pointer;
+            transition: opacity 0.2s;
+            -webkit-appearance: none;
+            letter-spacing: 0.5px;
         }
-        button:hover { background: #45a049; }
+
+        button.save:hover { opacity: 0.75; }
+        button.save:active { opacity: 0.6; }
+
+        .divider {
+            border: none;
+            border-top: 2px dashed #e8e0d0;
+            margin-bottom: 28px;
+        }
+
+        .memo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
         .memo {
-            background: white;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+            background: #fff;
+            border: 1px solid #e8e0d0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            position: relative;
+        }
+
+        .memo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 3px;
+            background: #f0e8d8;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .memo-content {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #2a2a2a;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 6px;
+        }
+
+        .memo-footer {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+            margin-top: 12px;
         }
-        .memo-content { flex: 1; white-space: pre-wrap; }
-        .memo-date { font-size: 12px; color: #999; margin-top: 5px; }
+
+        .memo-date {
+            font-size: 13px;
+            color: #bbb;
+        }
+
         .delete-btn {
-            background: #e74c3c;
-            padding: 4px 10px;
-            margin-left: 10px;
-            font-size: 12px;
+            font-size: 13px;
+            color: #ccc;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 0 6px 12px;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            transition: color 0.2s;
+            -webkit-appearance: none;
         }
-        .delete-btn:hover { background: #c0392b; }
+
+        .delete-btn:hover { color: #e74c3c; }
+        .delete-btn:active { color: #e74c3c; }
+
+        .empty {
+            font-size: 16px;
+            color: #ccc;
+            text-align: center;
+            padding: 48px 0;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 32px 44px; }
+            h1 { font-size: 28px; }
+            textarea, button.save { font-size: 15px; }
+        }
     </style>
 </head>
 <body>
-    <h1>📝 메모장</h1>
-    <form action="/add" method="post">
-        <textarea name="content" placeholder="메모를 입력하세요..."></textarea>
-        <button type="submit">저장</button>
-    </form>
+    <div class="container">
+        <h1>✏️ 메모</h1>
+        <p class="subtitle">생각나는 것들을 적어보세요.</p>
 
-    {% for memo in memos %}
-    <div class="memo">
-        <div>
-            <div class="memo-content">{{ memo.content }}</div>
-            <div class="memo-date">{{ memo.created_at }}</div>
+        <div class="input-area">
+            <textarea id="memo-input" placeholder="오늘은 무슨 생각을 하고 있나요?"></textarea>
+            <button class="save" onclick="addMemo()">저장하기</button>
         </div>
-        <a href="/delete/{{ memo.id }}">
-            <button class="delete-btn">삭제</button>
-        </a>
+
+        <hr class="divider">
+
+        <div class="memo-list" id="memo-list">
+            {% if memos %}
+                {% for memo in memos %}
+                <div class="memo" id="memo-{{ memo.id }}">
+                    <div class="memo-content">{{ memo.content }}</div>
+                    <div class="memo-footer">
+                        <span class="memo-date">{{ memo.created_at }}</span>
+                        <button class="delete-btn" onclick="deleteMemo({{ memo.id }})">삭제</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty" id="empty-msg">아직 메모가 없습니다.</div>
+            {% endif %}
+        </div>
     </div>
-    {% endfor %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('refresh', function(memos) {
+            const list = document.getElementById('memo-list');
+            if (memos.length === 0) {
+                list.innerHTML = '<div class="empty" id="empty-msg">아직 메모가 없습니다.</div>';
+                return;
+            }
+            list.innerHTML = memos.map(m => `
+                <div class="memo" id="memo-${m.id}">
+                    <div class="memo-content">${m.content}</div>
+                    <div class="memo-footer">
+                        <span class="memo-date">${m.created_at}</span>
+                        <button class="delete-btn" onclick="deleteMemo(${m.id})">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        function addMemo() {
+            const input = document.getElementById('memo-input');
+            const content = input.value.trim();
+            if (!content) return;
+            socket.emit('add_memo', { content });
+            input.value = '';
+        }
+
+        function deleteMemo(id) {
+            socket.emit('delete_memo', { id });
+        }
+
+        document.getElementById('memo-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.metaKey) addMemo();
+        });
+    </script>
 </body>
 </html>

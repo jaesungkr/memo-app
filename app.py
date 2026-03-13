@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit
 import sqlite3
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'memo-secret'
+socketio = SocketIO(app, cors_allowed_origins="*")
 DB = 'memo.db'
 
 def get_db():
@@ -19,26 +22,32 @@ def init_db():
             )
         ''')
 
-@app.route('/')
-def index():
+def get_all_memos():
     with get_db() as conn:
         memos = conn.execute('SELECT * FROM memos ORDER BY created_at DESC').fetchall()
+    return [dict(m) for m in memos]
+
+@app.route('/')
+def index():
+    memos = get_all_memos()
     return render_template('index.html', memos=memos)
 
-@app.route('/add', methods=['POST'])
-def add():
-    content = request.form.get('content')
+@socketio.on('add_memo')
+def handle_add(data):
+    content = data.get('content', '').strip()
     if content:
         with get_db() as conn:
             conn.execute('INSERT INTO memos (content) VALUES (?)', (content,))
-    return redirect(url_for('index'))
+        emit('refresh', get_all_memos(), broadcast=True)
 
-@app.route('/delete/<int:id>')
-def delete(id):
-    with get_db() as conn:
-        conn.execute('DELETE FROM memos WHERE id = ?', (id,))
-    return redirect(url_for('index'))
+@socketio.on('delete_memo')
+def handle_delete(data):
+    memo_id = data.get('id')
+    if memo_id:
+        with get_db() as conn:
+            conn.execute('DELETE FROM memos WHERE id = ?', (memo_id,))
+        emit('refresh', get_all_memos(), broadcast=True)
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
