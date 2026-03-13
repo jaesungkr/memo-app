@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메모장</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #333; }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #45a049; }
+        .memo {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .memo-content { flex: 1; white-space: pre-wrap; }
+        .memo-date { font-size: 12px; color: #999; margin-top: 5px; }
+        .delete-btn {
+            background: #e74c3c;
+            padding: 4px 10px;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        .delete-btn:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+    <h1>📝 메모장</h1>
+    <form action="/add" method="post">
+        <textarea name="content" placeholder="메모를 입력하세요..."></textarea>
+        <button type="submit">저장</button>
+    </form>
+
+    {% for memo in memos %}
+    <div class="memo">
+        <div>
+            <div class="memo-content">{{ memo.content }}</div>
+            <div class="memo-date">{{ memo.created_at }}</div>
+        </div>
+        <a href="/delete/{{ memo.id }}">
+            <button class="delete-btn">삭제</button>
+        </a>
+    </div>
+    {% endfor %}
+</body>
+</html>
