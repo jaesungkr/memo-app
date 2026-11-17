@@ -24,7 +24,7 @@ def init_db():
 
 def get_all_memos():
     with get_db() as conn:
-        memos = conn.execute('SELECT * FROM memos ORDER BY created_at DESC').fetchall()
+        memos = conn.execute('SELECT * FROM memos ORDER BY created_at DESC, id DESC').fetchall()
     return [dict(m) for m in memos]
 
 @app.route('/')
