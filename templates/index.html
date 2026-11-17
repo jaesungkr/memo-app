@@ -229,7 +229,10 @@
         }
 
         document.getElementById('memo-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.metaKey) addMemo();
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.isComposing) {
+                e.preventDefault();
+                addMemo();
+            }
         });
     </script>
 </body>
